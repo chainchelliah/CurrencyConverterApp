@@ -40,12 +40,14 @@ class IBanValidatorViewModel @Inject constructor(private val iBanValidatorUseCas
 
                     is Resource.Error -> {
                         _state.value = state.value.copy(
-                            isValid = result.data?.valid ?: false,
+                            isValid = false,
                             isLoading = false,
-                            message = result.data?.message ?: "Failed api call"
+                            message = "IBAN number is not valid"
                         )
 
                     }
+
+                    else -> {}
                 }
             }.launchIn(this)
         }

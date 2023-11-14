@@ -1,6 +1,7 @@
 package com.example.currencyconverterapp.di.iban
 
 import com.example.currencyconverterapp.data.repository.IBanValidatorRepositoryImpl
+import com.example.currencyconverterapp.data.source.local.dao.IBanValidatorDao
 import com.example.currencyconverterapp.data.source.remote.IBanValidatorApiService
 import com.example.currencyconverterapp.domain.repository.IBanValidatorRepository
 import dagger.Module
@@ -15,6 +16,9 @@ class IBanValidatorRepositoryModule {
 
     @Provides
     @Singleton
-    fun provideIBanValidatorRepository(iBanValidatorApiService: IBanValidatorApiService) : IBanValidatorRepository =
-        IBanValidatorRepositoryImpl(iBanValidatorApiService)
+    fun provideIBanValidatorRepository(
+        iBanValidatorApiService: IBanValidatorApiService,
+        iBanValidatorDao: IBanValidatorDao
+    ): IBanValidatorRepository =
+        IBanValidatorRepositoryImpl(iBanValidatorApiService, iBanValidatorDao)
 }

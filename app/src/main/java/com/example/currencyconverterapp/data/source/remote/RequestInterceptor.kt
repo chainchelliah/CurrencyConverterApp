@@ -12,6 +12,7 @@ class RequestInterceptor : Interceptor {
             .build()
         val request = originalRequest.newBuilder()
             .url(newUrl)
+            //TODO should stored into keystroe to avoid phishing
             .addHeader("apikey", "FIPZVI7fL8pov6xPV3czgwE7Z482q1Kp")
             .build()
         return chain.proceed(request)

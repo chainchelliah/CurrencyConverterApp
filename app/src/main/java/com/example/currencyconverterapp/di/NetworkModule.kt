@@ -1,5 +1,7 @@
 package com.example.currencyconverterapp.di
 
+import com.example.currencyconverterapp.data.Constants.BASE_URL
+import com.example.currencyconverterapp.data.source.remote.CurrencyConverterApiService
 import com.example.currencyconverterapp.data.source.remote.IBanValidatorApiService
 import com.example.currencyconverterapp.data.source.remote.RequestInterceptor
 import com.squareup.moshi.Moshi
@@ -8,6 +10,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.CertificatePinner
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -18,6 +21,9 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
 
+    private val certPinner = CertificatePinner.Builder()
+        .add("api.apilayer.com", "sha256/jKx/K3o0EaswUsjM80WKm89ukEkIH8ZVlVJ6daRaIyg=")
+        .build()
 
     private val interceptor = run {
         val httpLoggingInterceptor = HttpLoggingInterceptor()
@@ -25,11 +31,10 @@ class NetworkModule {
             httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         }
     }
-
-    @Provides
     @Singleton
+    @Provides
     fun provideOkHttpClient() =
-        OkHttpClient.Builder().addInterceptor(RequestInterceptor()).addInterceptor(interceptor)
+        OkHttpClient.Builder().certificatePinner(certPinner).addInterceptor(RequestInterceptor()).addInterceptor(interceptor)
             .build()
 
 
@@ -37,7 +42,7 @@ class NetworkModule {
     @Provides
     fun provideRetrofitIBanValidatorService(okHttpClient: OkHttpClient): IBanValidatorApiService =
         Retrofit.Builder()
-            .baseUrl(IBanValidatorApiService.BASE_URL)
+            .baseUrl(BASE_URL)
             .addConverterFactory(
                 MoshiConverterFactory.create(
                     Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
@@ -46,4 +51,18 @@ class NetworkModule {
             .client(okHttpClient)
             .build()
             .create(IBanValidatorApiService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideRetrofitCurrencyConverterService(okHttpClient: OkHttpClient): CurrencyConverterApiService =
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(
+                MoshiConverterFactory.create(
+                    Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+                )
+            )
+            .client(okHttpClient)
+            .build()
+            .create(CurrencyConverterApiService::class.java)
 }
